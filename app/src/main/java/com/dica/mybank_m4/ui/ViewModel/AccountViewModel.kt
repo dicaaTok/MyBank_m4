@@ -40,10 +40,8 @@ class AccountViewModel @Inject constructor(
             }
         })
     }
-
     fun addAccount(name: String, balance: String, currency: String) {
         val account = Account(name = name, balance = balance, currency = currency, isActive = true)
-
         accountApi.createAccount(account).enqueue(object : Callback<Account> {
             override fun onResponse(call: Call<Account>, response: Response<Account>) {
                 if (response.isSuccessful) {
@@ -53,7 +51,6 @@ class AccountViewModel @Inject constructor(
                     _errorMessage.value = "Ошибка добавления"
                 }
             }
-
             override fun onFailure(call: Call<Account>, t: Throwable) {
                 _errorMessage.value = "Ошибка сети: ${t.message}"
             }

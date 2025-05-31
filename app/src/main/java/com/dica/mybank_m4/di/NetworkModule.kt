@@ -31,7 +31,7 @@ object NetworkModule {
     @Provides
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://681cb239f74de1d219ad795d.mockapi.io/api/v1/")
+            .baseUrl("https://683ac40f43bb370a8673abff.mockapi.io/api/v1/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

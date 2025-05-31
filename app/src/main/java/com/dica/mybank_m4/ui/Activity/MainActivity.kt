@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(){
                 viewModel.deleteAccount(id)
             },
             onEdit = { account ->
+                //show edit dialog
                 showEditDialog(account)
             },
             onStatusToggle = { id, isChecked ->
@@ -48,7 +49,6 @@ class MainActivity : AppCompatActivity(){
         binding.btnAdd.setOnClickListener {
             showAddDialog()
         }
-
         viewModel.loadAccounts()
         subscribeToLiveData()
     }
@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity(){
                 val name = nameInput.text.toString()
                 val balance = balanceInput.text.toString()
                 val currency = currencyInput.text.toString()
+
                 viewModel.addAccount(name, balance, currency)
             }
             .setNegativeButton("Отмена", null)
