@@ -1,5 +1,6 @@
 package com.dica.mybank_m4.ui.Activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.EditText
@@ -9,16 +10,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dica.mybank_m4.R
-import com.dica.mybank_m4.data.model.Account
-import com.dica.mybank_m4.databinding.ActivityMainBinding
+import com.dica.mybank_m4.databinding.ActivityAccountsBinding
 import com.dica.mybank_m4.ui.Adapter.AccountAdapter
 import com.dica.mybank_m4.ui.ViewModel.AccountViewModel
+import com.dica.mybank_m4.ui.account_detail.AccountDetailsActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(){
 
-    private var _binding: ActivityMainBinding? = null
+    private var _binding: ActivityAccountsBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: AccountViewModel by viewModels()
@@ -27,20 +28,18 @@ class MainActivity : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _binding = ActivityMainBinding.inflate(layoutInflater)
+        _binding = ActivityAccountsBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
         adapter = AccountAdapter(
-            onDelete = { id ->
-                viewModel.deleteAccount(id)
-            },
-            onEdit = { account ->
-                //show edit dialog
-                showEditDialog(account)
-            },
             onStatusToggle = { id, isChecked ->
                 viewModel.updateAccountStatus(id, isChecked)
+            },
+            onItemClick = { id ->
+                val intent = Intent(this, AccountDetailsActivity::class.java)
+                intent.putExtra("account_id", id)
+                startActivity(intent)
             }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -49,6 +48,7 @@ class MainActivity : AppCompatActivity(){
         binding.btnAdd.setOnClickListener {
             showAddDialog()
         }
+
         viewModel.loadAccounts()
         subscribeToLiveData()
     }
@@ -85,34 +85,6 @@ class MainActivity : AppCompatActivity(){
             .show()
     }
 
-    private fun showEditDialog(account: Account) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_account, null)
-        val nameInput = dialogView.findViewById<EditText>(R.id.etName)
-        val balanceInput = dialogView.findViewById<EditText>(R.id.etBalance)
-        val currencyInput = dialogView.findViewById<EditText>(R.id.etCurrency)
 
-        nameInput.setText(account.name)
-        balanceInput.setText(account.balance)
-        currencyInput.setText(account.currency)
-
-        AlertDialog.Builder(this)
-            .setTitle("Редактировать счёт")
-            .setView(dialogView)
-            .setPositiveButton("Обновить") { _, _ ->
-                val name = nameInput.text.toString()
-                val balance = balanceInput.text.toString()
-                val currency = currencyInput.text.toString()
-
-                val updated = account.copy(
-                    name = name,
-                    balance = balance,
-                    currency = currency
-                )
-
-                viewModel.updateAccountFully(updated.id!!, updated)
-            }
-            .setNegativeButton("Отмена", null)
-            .show()
-    }
 
 }

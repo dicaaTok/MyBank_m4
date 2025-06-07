@@ -10,9 +10,8 @@ import com.dica.mybank_m4.R
 import com.dica.mybank_m4.data.model.Account
 
 class AccountAdapter (
-    val onDelete: (String) -> Unit,
-    val onEdit: (Account) -> Unit,
-    val onStatusToggle: (String, Boolean) -> Unit
+    val onStatusToggle: (String, Boolean) -> Unit,
+    val onItemClick: (String) -> Unit
 ) : RecyclerView.Adapter<AccountAdapter.AccountViewHolder>() {
 
     private val items = mutableListOf<Account>()
@@ -40,16 +39,6 @@ class AccountAdapter (
             findViewById<TextView>(R.id.tvName).text = account.name
             findViewById<TextView>(R.id.tvBalance).text = "${account.balance} ${account.currency}"
 
-            val btnDelete = findViewById<Button>(R.id.btnDelete)
-            btnDelete.setOnClickListener {
-                account.id?.let { onDelete(it) }
-            }
-
-            val btnEdit = findViewById<Button>(R.id.btnEdit)
-            btnEdit.setOnClickListener {
-                onEdit(account)
-            }
-
             val switchActive = findViewById<SwitchCompat>(R.id.switchActive)
             switchActive.setOnCheckedChangeListener(null)
             switchActive.isChecked = account.isActive
@@ -57,7 +46,7 @@ class AccountAdapter (
                 account.id?.let { onStatusToggle(it, isChecked) }
             }
 
-
+            setOnClickListener { account.id?.let { onItemClick(it) } }
 
         }
     }

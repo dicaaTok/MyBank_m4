@@ -19,7 +19,6 @@ interface AccountApi {
     @POST("accounts")
     fun createAccount(@Body account: Account): Call<Account>
 
-
     @DELETE("accounts/{id}")
     fun deleteAccount(@Path ("id") id: String): Call<Unit>
 
