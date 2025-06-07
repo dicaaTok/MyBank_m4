@@ -17,17 +17,16 @@ class AccountDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAccountDetailsBinding
     private val viewModel: AccountDetailsViewModel by viewModels()
-    private var accountId: Int = -1
+    private lateinit var accountId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAccountDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        accountId = intent.getIntExtra("accountId", -1)
-        viewModel.getAccountDetails(accountId)
+        accountId = intent.getStringExtra("accountId") ?: return
 
-        subscribeToLiveData()
+        viewModel.getAccountDetails(accountId)
 
         binding.btnEdit.setOnClickListener {
             viewModel.account.value?.let { showEditDialog(it) }
@@ -38,6 +37,8 @@ class AccountDetailsActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        subscribeToLiveData()
     }
 
     private fun subscribeToLiveData() {
@@ -48,10 +49,21 @@ class AccountDetailsActivity : AppCompatActivity() {
 
     private fun setAccountInfo(account: Account) {
         binding.tvName.text = account.name
-        binding.tvBalance.text = account.balance.toString()
+        binding.tvBalance.text = account.balance
+        binding.tvCurrency.text = account.currency
+        binding.tvStatus.text = if (account.isActive) "Активен" else "Неактивен"
     }
 
     private fun showEditDialog(account: Account) {
-        // viewModel.updateAccountFully(accountId, newAccount)
+        val dialog = AlertDialog.Builder(this)
+        val input = EditText(this).apply { setText(account.name) }
+        dialog.setTitle("Изменить имя")
+        dialog.setView(input)
+        dialog.setPositiveButton("Сохранить") { _, _ ->
+            val updated = account.copy(name = input.text.toString())
+            viewModel.updateAccountFully(accountId, updated)
+        }
+        dialog.setNegativeButton("Отмена", null)
+        dialog.show()
     }
 }
