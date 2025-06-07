@@ -17,7 +17,7 @@ import com.dica.mybank_m4.ui.account_detail.AccountDetailsActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(){
+class AccountsActivity : AppCompatActivity(){
 
     private var _binding: ActivityAccountsBinding? = null
     private val binding get() = _binding!!

@@ -4,81 +4,54 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.dica.mybank_m4.R
 import com.dica.mybank_m4.data.model.Account
 import com.dica.mybank_m4.databinding.ActivityAccountDetailsBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AccountDetailsActivity : AppCompatActivity() {
 
-    private var _binding: ActivityAccountDetailsBinding? = null
-    private val binding get() = _binding!!
-
-    private val accountId: String by lazy { intent.getStringExtra("account_id") ?: "" }
+    private lateinit var binding: ActivityAccountDetailsBinding
+    private val viewModel: AccountDetailsViewModel by viewModels()
+    private var accountId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _binding = ActivityAccountDetailsBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        binding = ActivityAccountDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        Toast.makeText(this, "ID счета: $accountId", Toast.LENGTH_SHORT).show()
+        accountId = intent.getIntExtra("accountId", -1)
+        viewModel.getAccountDetails(accountId)
 
-    }
+        subscribeToLiveData()
 
-    private fun initClicks(){
-        with(binding){
-            btnEdit.setOnClickListener {
-//                showEditDialog(viewModel.account.value)
-            }
-            btnDelete.setOnClickListener {
+        binding.btnEdit.setOnClickListener {
+            viewModel.account.value?.let { showEditDialog(it) }
+        }
 
+        binding.btnDelete.setOnClickListener {
+            viewModel.deleteAccount(accountId) {
+                finish()
             }
         }
     }
 
-    private fun subscribeToLiveData(){
-
-    }
-
-    private fun setAccountInfo(account: Account?) {
-        with(binding){
-            account?.let {
-                tvName.text = "Название: ${it.name}"
-                tvIsActive.text = "Статус активности: ${it.isActive.toString()}"
-                tvBalance.text = "Баланс: ${it.balance}"
-                tvCurrency.text = "Валюта: ${it.currency}"
-            }
+    private fun subscribeToLiveData() {
+        viewModel.account.observe(this) { account ->
+            setAccountInfo(account)
         }
     }
 
-    private fun showEditDialog(account: Account?) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_account, null)
-        val nameInput = dialogView.findViewById<EditText>(R.id.etName)
-        val balanceInput = dialogView.findViewById<EditText>(R.id.etBalance)
-        val currencyInput = dialogView.findViewById<EditText>(R.id.etCurrency)
+    private fun setAccountInfo(account: Account) {
+        binding.tvName.text = account.name
+        binding.tvBalance.text = account.balance.toString()
+    }
 
-        nameInput.setText(account?.name)
-        balanceInput.setText(account?.balance)
-        currencyInput.setText(account?.currency)
-
-        AlertDialog.Builder(this)
-            .setTitle("Редактировать счёт")
-            .setView(dialogView)
-            .setPositiveButton("Обновить") { _, _ ->
-                val name = nameInput.text.toString()
-                val balance = balanceInput.text.toString()
-                val currency = currencyInput.text.toString()
-
-                val updatedAccount = account?.copy(
-                    name = name,
-                    balance = balance,
-                    currency = currency
-                )
-
-            }
-            .setNegativeButton("Отмена", null)
-            .show()
+    private fun showEditDialog(account: Account) {
+        // viewModel.updateAccountFully(accountId, newAccount)
     }
 }

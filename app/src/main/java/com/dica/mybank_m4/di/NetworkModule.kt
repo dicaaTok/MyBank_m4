@@ -1,6 +1,7 @@
 package com.dica.mybank_m4.di
 
 import com.dica.mybank_m4.data.api.AccountApi
+import com.dica.mybank_m4.data.api.AccountDetailsApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,5 +41,10 @@ object NetworkModule {
     @Provides
     fun provideAccountApi(retrofit: Retrofit): AccountApi {
         return retrofit.create(AccountApi::class.java)
+    }
+    @Provides
+    fun provideAccountDetailsApi(retrofit: Retrofit): AccountDetailsApi {
+        return retrofit.create(AccountDetailsApi::class.java)
+
     }
 }
